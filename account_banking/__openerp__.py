@@ -26,14 +26,14 @@
 
 {
     'name': 'Account Banking',
-    'version': '0.4',
+    'version': '0.5',
     'license': 'AGPL-3',
-    'author': 'Banking addons community',
+    'author': "Banking addons community,Odoo Community Association (OCA)",
     'website': 'https://launchpad.net/banking-addons',
     'category': 'Banking addons',
     'depends': [
         'account_voucher',
-        ],
+    ],
     'data': [
         'security/ir.model.access.csv',
         'data/account_banking_data.xml',

@@ -23,7 +23,6 @@
 import base64
 from datetime import datetime, date
 from decimal import Decimal
-import paymul
 import string
 import random
 import logging
@@ -31,6 +30,8 @@ import logging
 from openerp.osv import orm, fields
 from openerp.tools import ustr
 from openerp.tools.translate import _
+
+from . import paymul
 
 
 def strpdate(arg, format='%Y-%m-%d'):
@@ -61,7 +62,7 @@ class banking_export_hsbc_wizard(orm.TransientModel):
             help=('The bank will use this reference in feedback communication '
                   'to refer to this run. 35 characters are available.'
                   ),
-            ),
+        ),
         'execution_date_create': fields.date(
             'Execution Date',
             help=('This is the date the file should be processed by the bank. '
@@ -71,38 +72,38 @@ class banking_export_hsbc_wizard(orm.TransientModel):
                   'days and typically use a delay of two days between '
                   'execution date and effective transfer date.'
                   ),
-            ),
+        ),
         'file_id': fields.many2one(
             'banking.export.hsbc',
             'hsbc File',
             readonly=True
-            ),
+        ),
         'file': fields.related(
             'file_id', 'file', type='binary',
             readonly=True,
             string='File',
-            ),
+        ),
         'execution_date_finish': fields.related(
             'file_id', 'execution_date', type='date',
             readonly=True,
             string='Execution Date',
-            ),
+        ),
         'total_amount': fields.related(
             'file_id', 'total_amount',
             type='float',
             string='Total Amount',
             readonly=True,
-            ),
+        ),
         'no_transactions': fields.integer(
             'Number of Transactions',
             readonly=True,
-            ),
+        ),
         'payment_order_ids': fields.many2many(
             'payment.order', 'rel_wiz_payorders', 'wizard_id',
             'payment_order_id', 'Payment Orders',
             readonly=True,
-            ),
-        }
+        ),
+    }
 
     logger = logging.getLogger('export_hsbc')
 

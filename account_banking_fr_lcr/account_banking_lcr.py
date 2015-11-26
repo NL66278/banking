@@ -22,7 +22,11 @@
 
 from openerp.osv import orm, fields
 from openerp.addons.decimal_precision import decimal_precision as dp
-from unidecode import unidecode
+
+try:
+    from unidecode import unidecode
+except ImportError:
+    unidecode = None
 
 
 class banking_export_lcr(orm.Model):
@@ -59,10 +63,12 @@ class banking_export_lcr(orm.Model):
         'filename': fields.function(
             _generate_filename, type='char', size=256,
             string='Filename', readonly=True, store=True),
-        'state': fields.selection([
-            ('draft', 'Draft'),
-            ('sent', 'Sent'),
-            ], 'State', readonly=True),
+        'state': fields.selection(
+            [
+                ('draft', 'Draft'),
+                ('sent', 'Sent'),
+            ],
+            'State', readonly=True),
     }
 
     _defaults = {

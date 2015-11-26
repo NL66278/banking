@@ -117,7 +117,7 @@ class transaction_message(object):
             # payment batch done via clieop
             if (self.transfer_type == 'VZ'
                     and (not self.remote_account or self.remote_account == '0')
-                    and (not self.message or re.match('^\s*$', self.message))
+                    and (not self.message or re.match(r'^\s*$', self.message))
                     and self.remote_owner.startswith('TOTAAL ')):
                 self.transfer_type = 'PB'
                 self.message = self.remote_owner
@@ -127,7 +127,7 @@ class transaction_message(object):
                     and not self.remote_account\
                     and not self.remote_owner\
                     and re.match(
-                        '^Verzamel Eurobetaling .* TOTAAL \d+ POSTEN\s*$',
+                        r'^Verzamel Eurobetaling .* TOTAAL \d+ POSTEN\s*$',
                         self.message):
                 self.transfer_type = 'PB'
         else:
@@ -213,7 +213,7 @@ class transaction(models.mem_bank_transaction):
         line
         '''
         msg, message = message.rstrip(), None
-        parts = [msg[i:i+32].rstrip() for i in range(0, len(msg), 32)]
+        parts = [msg[i:i + 32].rstrip() for i in range(0, len(msg), 32)]
         return '\n'.join(parts)
 
     def parse_message(self):
@@ -231,7 +231,7 @@ class transaction(models.mem_bank_transaction):
             # Title of action is in remote_owner, message contains additional
             # info
             self.reference = self.remote_owner.rstrip()
-            parts = [self.message[i:i+32].rstrip()
+            parts = [self.message[i:i + 32].rstrip()
                      for i in range(0, len(self.message), 32)
                      ]
             if len(parts) > 3:
@@ -262,7 +262,7 @@ class transaction(models.mem_bank_transaction):
             # first part of the message.
             # Sometimes this misfires, as with the tax office collecting road
             # taxes, but then a once-only manual correction is sufficient.
-            parts = [self.message[i:i+32].rstrip()
+            parts = [self.message[i:i + 32].rstrip()
                      for i in range(0, len(self.message), 32)
                      ]
             self.reference = self.remote_owner

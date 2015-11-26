@@ -27,13 +27,13 @@
     'name': 'Account Banking - Payments',
     'version': '0.1.164',
     'license': 'AGPL-3',
-    'author': 'Banking addons community',
+    'author': "Banking addons community,Odoo Community Association (OCA)",
     'website': 'https://launchpad.net/banking-addons',
     'category': 'Banking addons',
     'depends': [
         'account_banking',
         'account_banking_payment_export',
-        ],
+    ],
     'data': [
         'view/account_payment.xml',
         'view/banking_transaction_wizard.xml',

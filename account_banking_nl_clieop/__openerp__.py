@@ -21,13 +21,13 @@
     'name': 'Account Banking NL ClieOp',
     'version': '0.92',
     'license': 'AGPL-3',
-    'author': 'EduSense BV',
+    'author': "EduSense BV,Odoo Community Association (OCA)",
     'website': 'http://www.edusense.nl',
     'category': 'Account Banking',
     'depends': [
         'account_banking_payment',
         'account_iban_preserve_domestic',
-        ],
+    ],
     'data': [
         'account_banking_nl_clieop.xml',
         'wizard/export_clieop_view.xml',

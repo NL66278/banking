@@ -23,17 +23,17 @@
     'name': 'Banking Addons - Iban lookup (legacy)',
     'version': '0.1',
     'license': 'AGPL-3',
-    'author': 'Banking addons community',
+    'author': "Banking addons community,Odoo Community Association (OCA)",
     'website': 'https://launchpad.net/banking-addons',
     'category': 'Banking addons',
     'depends': [
         'account_banking',
         'account_iban_preserve_domestic',
-        ],
+    ],
     'data': [
         'view/res_bank.xml',
         'view/res_partner_bank.xml',
-        ],
+    ],
     'external_dependencies': {
         'python': ['BeautifulSoup'],
     },

@@ -32,6 +32,8 @@ use parser.models as a mean of communication with the business logic.
 
 import base64
 import datetime
+from StringIO import StringIO
+from zipfile import ZipFile, BadZipfile  # BadZipFile in Python >= 3.2
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp.addons.account_banking.parsers import models
@@ -67,11 +69,13 @@ class banking_import_line(orm.TransientModel):
         'statement_line_id': fields.many2one(
             'account.bank.statement.line',
             'Resulting statement line', readonly=True),
-        'type': fields.selection([
-            ('supplier', 'Supplier'),
-            ('customer', 'Customer'),
-            ('general', 'General')
-            ], 'Type', required=True),
+        'type': fields.selection(
+            [
+                ('supplier', 'Supplier'),
+                ('customer', 'Customer'),
+                ('general', 'General')
+            ],
+            'Type', required=True),
         'partner_id': fields.many2one('res.partner', 'Partner'),
         'statement_id': fields.many2one(
             'account.bank.statement',
@@ -105,7 +109,7 @@ class banking_import_line(orm.TransientModel):
             'Transaction type',
         ),
         'duplicate': fields.boolean('Duplicate'),
-        }
+    }
 
 
 class banking_import(orm.TransientModel):
@@ -120,6 +124,15 @@ class banking_import(orm.TransientModel):
         banking_import = self.browse(cr, uid, ids, context)[0]
         statements_file = banking_import.file
         data = base64.decodestring(statements_file)
+        files = [data]
+        try:
+            with ZipFile(StringIO(data), 'r') as archive:
+                files = [
+                    archive.read(filename) for filename in archive.namelist()
+                    if not filename.endswith('/')
+                    ]
+        except BadZipfile:
+            pass
 
         user_obj = self.pool.get('res.user')
         statement_obj = self.pool.get('account.bank.statement')
@@ -142,8 +155,10 @@ class banking_import(orm.TransientModel):
         company = (banking_import.company or
                    user_obj.browse(cr, uid, uid, context).company_id)
 
-        # Parse the file
-        statements = parser.parse(cr, data)
+        # Parse the file(s)
+        statements = []
+        for import_file in files:
+            statements += parser.parse(cr, import_file)
 
         if any([x for x in statements if not x.is_valid()]):
             raise orm.except_orm(
@@ -209,9 +224,10 @@ class banking_import(orm.TransientModel):
                 if not account_info:
                     results.log.append(
                         _('Statements found for unknown account '
-                          '%(bank_account)s') % {
-                              'bank_account': statement.local_account
-                            }
+                          '%(bank_account)s') %
+                        {
+                            'bank_account': statement.local_account
+                        }
                     )
                     error_accounts[statement.local_account] = True
                     results.error_cnt += 1
@@ -219,8 +235,8 @@ class banking_import(orm.TransientModel):
                 if 'journal_id' not in account_info.keys():
                     results.log.append(
                         _('Statements found for account %(bank_account)s, '
-                          'but no default journal was defined.'
-                          ) % {'bank_account': statement.local_account}
+                          'but no default journal was defined.') %
+                        {'bank_account': statement.local_account}
                     )
                     error_accounts[statement.local_account] = True
                     results.error_cnt += 1
@@ -243,11 +259,12 @@ class banking_import(orm.TransientModel):
                 # TODO: convert currencies?
                 results.log.append(
                     _('Statement %(statement_id)s for account %(bank_account)s'
-                      ' uses different currency than the defined bank journal.'
-                      ) % {
-                          'bank_account': statement.local_account,
-                          'statement_id': statement.id
-                        }
+                      ' uses different currency than the defined bank '
+                      'journal.') %
+                    {
+                        'bank_account': statement.local_account,
+                        'statement_id': statement.id
+                    }
                 )
                 error_accounts[statement.local_account] = True
                 results.error_cnt += 1
@@ -279,7 +296,7 @@ class banking_import(orm.TransientModel):
                     ('date_start', '<=', statement.date),
                     ('date_stop', '>=', statement.date),
                     ('special', '=', False),
-                    ], context=context)
+                ], context=context)
 
             if not period_ids:
                 results.log.append(
@@ -396,8 +413,8 @@ class banking_import(orm.TransientModel):
             states={
                 'ready': [('readonly', True)],
                 'error': [('readonly', True)],
-                },
-            ),
+            },
+        ),
         'file_name': fields.char('File name', size=256),
         'file': fields.binary(
             'Statements File',
@@ -412,21 +429,22 @@ class banking_import(orm.TransientModel):
             states={
                 'ready': [('readonly', True)],
                 'error': [('readonly', True)],
-                },
-            ),
+            },
+        ),
         'parser': fields.selection(
             parser_types, 'File Format', required=True,
             states={
                 'ready': [('readonly', True)],
                 'error': [('readonly', True)],
-                },
-            ),
+            },
+        ),
         'log': fields.text('Log', readonly=True),
         'state': fields.selection(
-            [('init', 'init'),
-             ('ready', 'ready'),
-             ('error', 'error')
-             ],
+            [
+                ('init', 'init'),
+                ('ready', 'ready'),
+                ('error', 'error')
+            ],
             'State', readonly=True),
         'import_id': fields.many2one(
             'account.banking.imported.file', 'Import File'),
@@ -435,8 +453,8 @@ class banking_import(orm.TransientModel):
             'statement_id', 'Imported Bank Statements'),
         'line_ids': fields.one2many(
             'banking.import.line', 'banking_import_id', 'Transactions',
-            ),
-        }
+        ),
+    }
 
     def _default_parser_type(self, cr, uid, context=None):
         types = models.parser_type.get_parser_types()
@@ -448,4 +466,4 @@ class banking_import(orm.TransientModel):
             s.pool.get('res.company')._company_default_get(
                 cr, uid, 'bank.import.transaction', context=c),
         'parser': _default_parser_type,
-        }
+    }

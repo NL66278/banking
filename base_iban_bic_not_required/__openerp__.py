@@ -23,12 +23,12 @@
     'name': 'IBAN - Bic not required',
     'version': '0.1',
     'license': 'AGPL-3',
-    'author': 'Banking addons community',
+    'author': "Banking addons community,Odoo Community Association (OCA)",
     'website': 'https://launchpad.net/banking-addons',
     'category': 'Banking addons',
     'depends': [
         'base_iban',
-        ],
+    ],
     'description': '''
 The account_iban module in OpenERP mandates the presence of a BIC
 code on an IBAN account number through a constraint. However, as of
@@ -42,6 +42,6 @@ See also https://bugs.launchpad.net/openobject-addons/+bug/933472
     ''',
     'data': [
         'data/res_partner_bank_type_field.xml',
-        ],
+    ],
     'installable': True,
 }

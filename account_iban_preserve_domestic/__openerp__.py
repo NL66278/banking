@@ -25,16 +25,16 @@
     'name': 'Domestic bank account number',
     'version': '0.1.163',
     'license': 'AGPL-3',
-    'author': 'Therp BV',
+    'author': "Therp BV,Odoo Community Association (OCA)",
     'website': 'https://launchpad.net/banking-addons',
     'category': 'Banking addons',
     'depends': [
         'base_iban',
         'account',
-        ],
+    ],
     'data': [
         'res_partner_bank_view.xml'
-        ],
+    ],
     'description': '''
 This module is compatible with OpenERP 7.0.
 

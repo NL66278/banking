@@ -22,14 +22,14 @@
     'name': 'Banking Addons - Tests',
     'version': '0.1',
     'license': 'AGPL-3',
-    'author': 'Therp BV',
+    'author': "Therp BV,Odoo Community Association (OCA)",
     'website': 'https://launchpad.net/banking-addons',
     'category': 'Banking addons',
     'depends': [
         'account_accountant',
         'account_banking_payment',
         'account_banking_sepa_credit_transfer',
-        ],
+    ],
     'description': '''
 This addon adds unit tests for the Banking addons. Installing this
 module will not give you any benefit other than having the tests'

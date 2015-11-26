@@ -36,10 +36,16 @@ def migrate(cr, installed_version):
         return
 
     query = "INSERT INTO account_banking_mandate " \
+            "(id, create_uid, create_date, write_date, write_uid, "\
+            "partner_bank_id, last_debit_date, scan, company_id, state, "\
+            "unique_mandate_reference, signature_date, sepa_migrated, "\
+            "original_mandate_identification, recurrent_sequence_type, type, "\
+            "scheme) "\
             "SELECT id, create_uid, create_date, write_date, write_uid, " \
             "partner_bank_id, last_debit_date, scan, company_id, state, " \
             "unique_mandate_reference, signature_date, sepa_migrated, " \
-            "original_mandate_identification, recurrent_sequence_type, type " \
+            "original_mandate_identification, recurrent_sequence_type, type, "\
+            "'CORE' "\
             "FROM sdd_mandate"
     cr.execute(query)
     query2 = "UPDATE account_invoice SET mandate_id=sdd_mandate_id"
@@ -50,5 +56,5 @@ def migrate(cr, installed_version):
     cr.execute(query4)
     query5 = "ALTER TABLE payment_line DROP COLUMN IF EXISTS sdd_mandate_id"
     cr.execute(query5)
-    query6 = "DROP TABLE IF EXISTS sdd_mandate"
+    query6 = "DROP TABLE IF EXISTS sdd_mandate CASCADE"
     cr.execute(query6)

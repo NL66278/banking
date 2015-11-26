@@ -23,10 +23,14 @@
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp.addons.decimal_precision import decimal_precision as dp
-from unidecode import unidecode
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import logging
+
+try:
+    from unidecode import unidecode
+except ImportError:
+    unidecode = None
 
 NUMBER_OF_UNUSED_MONTHS_BEFORE_EXPIRY = 36
 
@@ -42,11 +46,14 @@ class banking_export_sdd(orm.Model):
     def _generate_filename(self, cr, uid, ids, name, arg, context=None):
         res = {}
         for sepa_file in self.browse(cr, uid, ids, context=context):
-            ref = sepa_file.payment_order_ids[0].reference
-            if ref:
-                label = unidecode(ref.replace('/', '-'))
+            if not sepa_file.payment_order_ids:
+                label = 'no payment order'
             else:
-                label = 'error'
+                ref = sepa_file.payment_order_ids[0].reference
+                if ref:
+                    label = unidecode(ref.replace('/', '-'))
+                else:
+                    label = 'error'
             res[sepa_file.id] = 'sdd_%s.xml' % label
         return res
 
@@ -159,10 +166,15 @@ class sdd_mandate(orm.Model):
             help="When the field 'Migrated to SEPA' is not active, this "
             "field will be used as the Original Mandate Identification in "
             "the Direct Debit file."),
+        'scheme': fields.selection([
+            ('CORE', 'Basic (CORE)'),
+            ('B2B', 'Enterprise (B2B)')
+            ], 'Scheme', required=True)
     }
 
     _defaults = {
         'sepa_migrated': True,
+        'scheme': 'CORE',
     }
 
     def _check_sdd_mandate(self, cr, uid, ids):

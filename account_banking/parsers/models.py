@@ -20,6 +20,7 @@
 ##############################################################################
 
 import re
+from difflib import SequenceMatcher
 from openerp.tools.translate import _
 
 
@@ -353,6 +354,24 @@ class parser(object):
     country_code = None
     doc = __doc__
 
+    def normalize_identifier(self, account, identifier):
+        """
+        Strip any substantial part of the account number from
+        the identifier, as well as the common prefix 'CAMT053'.
+        """
+        if identifier.upper().startswith('CAMT053'):
+            identifier = identifier[7:]
+        seq_matcher = SequenceMatcher(None, account, identifier)
+        _a, start, length = seq_matcher.find_longest_match(
+            0, len(account), 0, len(identifier))
+        if length < 7:
+            return identifier
+        result = identifier[0:start] + \
+            identifier[start + length:len(identifier)]
+        while result and not result[0].isalnum():
+            result = result[1:]
+        return result
+
     def get_unique_statement_id(self, cr, base):
         name = base
         suffix = 1
@@ -378,7 +397,7 @@ class parser(object):
         param being a company account is not enforced here either.
         """
         def normalize(account_no):
-            return re.sub('\s', '', account_no)
+            return re.sub(r'\s', '', account_no)
 
         account = normalize(account)
         cr.execute(
