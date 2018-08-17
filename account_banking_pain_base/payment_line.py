@@ -27,7 +27,7 @@ class payment_line(orm.Model):
     _inherit = 'payment.line'
 
     def _get_struct_communication_types(self, cr, uid, context=None):
-        return [('ISO', 'ISO')]
+        return [('CUR', 'CUR')]
 
     _columns = {
         'priority': fields.selection(
@@ -50,5 +50,5 @@ class payment_line(orm.Model):
 
     _defaults = {
         'priority': 'NORM',
-        'struct_communication_type': 'ISO',
+        'struct_communication_type': 'CUR',
     }
